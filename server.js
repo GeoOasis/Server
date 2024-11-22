@@ -1,20 +1,30 @@
-const {Hocuspocus} = require('@hocuspocus/server');
+const express = require("express");
+const expressWebsockets = require("express-ws");
+const { Server } = require("@hocuspocus/server");
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
-const server = new Hocuspocus({
-    port: PORT,
-    async onConnect(client) {
-        console.log('-------------------------------');
-        console.log(`Client ${client.socketId} connected`);
-        // console.log(`the number of connected clients: ${server.getConnectionsCount()}`);
-    },
-    async onDisconnect(client) {
-        console.log('-------------------------------');
-        console.log(`Client ${client.socketId} disconnected`);
-        // console.log(`the number of connected clients: ${server.getConnectionsCount()}`);
-    }
+const HocuspocusServer = Server.configure({
+  onConnect(client) {
+    console.log(`Client ${client.socketId} connected!!!`);
+  },
 
+  onDisconnect(client) {
+    console.log(`Client ${client.socketId} disconnected!!!`);
+  },
 });
 
-server.listen();
+const expressApp = express();
+const { app } = expressWebsockets(expressApp);
+
+app.get("/", (request, response) => {
+  response.send("<h1>Hello World!</h1>");
+});
+
+app.ws("/collab", (websocket, request) => {
+  HocuspocusServer.handleConnection(websocket, request);
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
