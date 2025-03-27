@@ -15,16 +15,14 @@ const HocuspocusServer = Server.configure({
 });
 
 const expressApp = express();
-const { app } = expressWebsockets(expressApp);
+expressApp.use(express.static("dist"));
 
-app.get("/", (request, response) => {
-  response.send("<h1>Hello World!</h1>");
-});
+const { app } = expressWebsockets(expressApp);
 
 app.ws("/collab", (websocket, request) => {
   HocuspocusServer.handleConnection(websocket, request);
 });
 
-app.listen(PORT,'0.0.0.0', () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
